@@ -4,7 +4,13 @@
 		"animation.onJoin": {
 			"timeline": {
 				"9.0": [
-					"/ability @s[tag=flying] mayfly true"
+					"/scoreboard objectives add Capi:health dummy",
+					"/scoreboard objectives add Capi:x dummy",
+					"/scoreboard objectives add Capi:y dummy",
+					"/scoreboard objectives add Capi:y dummy",
+					"/scoreboard objectives add Capi:rx dummy",
+					"/scoreboard objectives add Capi:ry dummy",
+					"/scoreboard objectives add Capi:slot dummy"
 				]
 			},
 			"animation_length": 9.9,
