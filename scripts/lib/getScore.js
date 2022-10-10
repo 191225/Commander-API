@@ -1,6 +1,6 @@
 import { world } from "mojang-minecraft";
 
-export function getScore(name, objectName){
+function getScore(name, objectName){
     let scoreboard = world.scoreboard;
     let ScoreboardObjective = scoreboard.getObjective(objectName);
     let participants;
@@ -14,3 +14,5 @@ export function getScore(name, objectName){
     if (typeof name === "object" && name.nameTag.length) score = ScoreboardObjective.getScore(name.scoreboard);
     return score;
 }
+
+export default getScore;

@@ -55,4 +55,5 @@ class TickEvent {
         });
     }
 }
-export const tickEvent = new TickEvent();
+const tickEvent = new TickEvent();
+export default tickEvent;
