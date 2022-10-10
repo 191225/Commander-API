@@ -21,7 +21,11 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
 
         // Rename
         if (player.rename) {
-            player.rename = player.rename.replace("{name}", player.name);
+            try {
+                const score = player.rename.split("[")[1].split("]")[0];
+                player.rename = player.rename.replace(`[${score}]`, getScore(player, score));
+            } catch {}
+            player.rename = player.rename.replace("{name}", player.name).replace(/]/g);
             player.nameTag = player.rename;
             player.rename = false;
         }
@@ -31,5 +35,7 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
             player.nameTag = player.name;
             player.resetName = false;
         }
+
+        
     }
 })
