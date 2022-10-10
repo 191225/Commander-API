@@ -9,8 +9,14 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
     for(let player of world.getPlayers()) {
         player.getTags().forEach((t) => {
             t = t.replace(/"/g, "");
-            if (t.startsWith("rename:")) player.rename = t.replace("rename:", "");
-            if (t.startsWith("resetName:")) player.resetName = true;
+            if (t.startsWith("rename:")) {
+                player.rename = t.replace("rename:", "");
+                player.removeTag(t);
+            }
+            if (t.startsWith("resetName")) {
+                player.resetName = true;
+                player.removeTag(t);
+            }
         })
 
         // Rename
