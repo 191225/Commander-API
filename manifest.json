@@ -1,0 +1,41 @@
+{
+	"format_version": 2,
+	"header": {
+		"name": "Commander API",
+		"description": "マインクラフト統合版のコマンドを拡張します。",
+		"uuid": "ebac7142-c210-4d32-87ba-5650be52f456",
+		"version": [ 1, 0, 0 ],
+		"min_engine_version": [ 1, 19, 20 ]
+	},
+	"metadata": {
+		"authors": ["Nano", "arutaka"],
+		"url": "https://github.com/arutaka1220/"
+	},
+	"modules": [{
+			"type": "data",
+			"uuid": "36f425e9-10c9-466d-a620-0362a30c9b6f",
+			"version": [ 1, 0, 0 ]
+		},
+		{
+			"description": "hi everyone!",
+			"language": "javascript",
+			"type": "script",
+			"uuid": "0d1f29e1-417f-48fb-b5fe-5a980830885a",
+			"version": [ 1, 0, 0 ],
+			"entry": "scripts/index.js"
+		}
+	],
+	"dependencies": [{
+			"module_name": "mojang-minecraft",
+			"version": "1.0.0-beta"
+		},
+		{
+			"module_name": "mojang-gametest",
+			"version": "1.0.0-beta"
+		},
+        {
+			"module_name": "mojang-minecraft-ui",
+			"version": "1.0.0-beta"
+		}
+	]
+}
