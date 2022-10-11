@@ -8,7 +8,7 @@
  * ░╚════╝░░╚════╝░╚═╝░░░░░╚═╝╚═╝░░░░░╚═╝╚═╝░░╚═╝╚═╝░░╚══╝╚═════╝░╚══════╝╚═╝░░╚═╝  ╚═╝░░╚═╝╚═╝░░░░░╚═╝
  * 
  * @LICENSE GNU General Public License v3.0
- * @AUTHORS NANO ARUTAKA
+ * @AUTHORS Nano, arutaka
  * @LINK https://github.com/191225/Commander-API
  */
 
