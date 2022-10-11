@@ -31,14 +31,23 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
                 player.removeTag(t);
             }
             if (t.startsWith("setItem:")) {
-                player.setItemJson = t.replace("setItem:", "").replace(/'/g, '\"').replace(/`/g, '\"');
+                player.setItemJson = t.replace("setItem:", "").replace(/'/g, '\"').replace(/`/g, "\"");
                 player.removeTag(t);
             }
             if (t.startsWith("form:")) {
-                player.formJson = t.replace("form:","").replace(/'/g, "\"").replace(/`/g, '\"');
+                player.formJson = t.replace("form:","").replace(/'/g, "\"").replace(/`/g, "\"");
+                player.removeTag(t);
+            }
+            if (t.startsWith("run:")) {
+                player.run = t.replace("run:","").replace(/'/g, "\"").replace(/`/g, "\"");
                 player.removeTag(t);
             }
         })
+
+        // tshoot
+        if (player.hasTag("Capi:system_tshoot")) {
+            player.getTags().forEach((t) => player.removeTag(t));
+        }
 
         // Rename
         if (player.rename) {
@@ -61,25 +70,7 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
             }
         } catch {}
 
-        // Set scoreboard
-        // health
-        player.health = player.getComponent("minecraft:health").current;
-        try {
-            player.runCommandAsync(`scoreboard players set @s Capi:health ${player.health}`);
-        } catch {}
-
-        // pos
-        player.runCommandAsync(`scoreboard players set @s Capi:x ${player.location.x.toFixed(0)}`);
-        player.runCommandAsync(`scoreboard players set @s Capi:y ${player.location.y.toFixed(0)}`);
-        player.runCommandAsync(`scoreboard players set @s Capi:z ${player.location.z.toFixed(0)}`);
-
-        // rotation
-        player.runCommandAsync(`scoreboard players set @s Capi:rx ${player.rotation.x.toFixed(0)}`);
-        player.runCommandAsync(`scoreboard players set @s Capi:ry ${player.rotation.y.toFixed(0)}`);
-
-        // selected slot
-        player.runCommandAsync(`scoreboard players set @s Capi:slot ${player.selectedSlot}`);
-        
+        // Set item
         let container = player.getComponent('inventory').container;
         if (player.setItemJson) {
             const Data = JSON.parse(player.setItemJson);
@@ -116,7 +107,7 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
             player.setItemJson = false;
         }
 
-        // Form
+        // Show form
         if (player.formJson) {
             const Data = JSON.parse(player.formJson);
             if (!Data.buttons) throw TypeError(`The button has not been passed. A button must be passed to display the form.`);
@@ -126,15 +117,41 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
             if (Data.body) Form.body(String(setVariable(player, Data.body)));
            
             Data.buttons.forEach(b => {
-                player.tell(String(JSON.stringify(b)))
                 if (!b.text) throw TypeError(`The button text is not passed.`);
                 if (b.textures) Form.button(String(setVariable(player, b.text)), String(b.textures));
                     else Form.button(String(setVariable(player, b.text)));
             });
 
-            Form.show(player).then(response => player.addTag(Data.buttons[response.selection].tag));
+            Form.show(player).then(response => player.addTag((Data.buttons[response.selection].tag)));
             player.formJson = false;
         }
+        // Run command
+        if (player.run) {
+            const Data = JSON.parse(player.run);
+            Data.forEach(c => player.runCommandAsync(String(setVariable(player, c))));
+            player.run = false;
+        }
+
+        // Set scoreboard
+        // health
+        player.health = player.getComponent("minecraft:health").current;
+        try {
+            player.runCommandAsync(`scoreboard players set @s Capi:health ${player.health}`);
+        } catch {}
+
+        // pos
+        player.runCommandAsync(`scoreboard players set @s Capi:x ${player.location.x.toFixed(0)}`);
+        player.runCommandAsync(`scoreboard players set @s Capi:y ${player.location.y.toFixed(0)}`);
+        player.runCommandAsync(`scoreboard players set @s Capi:z ${player.location.z.toFixed(0)}`);
+
+        // rotation
+        player.runCommandAsync(`scoreboard players set @s Capi:rx ${player.rotation.x.toFixed(0)}`);
+        player.runCommandAsync(`scoreboard players set @s Capi:ry ${player.rotation.y.toFixed(0)}`);
+
+        // selected slot
+        player.runCommandAsync(`scoreboard players set @s Capi:slot ${player.selectedSlot}`);
+        
+        
     }
 });
 
