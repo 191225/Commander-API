@@ -44,11 +44,17 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
 
         // Rename
         if (player.rename) {
-            player.rename = player.rename.replace("{name}", player.name);
-            for (let i = 0; i < 5; i++) {
+            const dataLength = [...player.rename].filter(t => t === "{").length;
+            for (let i = 0; i < dataLength; i++) {
+                player.rename = player.rename.replace("{name}", player.name);
                 try {
                     const score = player.rename.split("{score:")[1].split("}")[0];
                     if (score) player.rename = player.rename.replace(`{score:${score}}`, getScore(player, score));
+                } catch {}
+                try {
+                    const tag = player.rename.split("{tag:")[1].split("}")[0];
+                    const hasTag = player.getTags().find(t => t.startsWith(tag));
+                    if (tag) player.rename = player.rename.replace(`{tag:${tag}}`, hasTag.split(":")[1]);
                 } catch {}
             }
             
@@ -102,7 +108,23 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
             if (Data.data) data = Data.data;
             if (Data.slot) slot = Data.slot;
             let item = new Minecraft.ItemStack(Minecraft.MinecraftItemTypes[itemName], amount, data);
-            if (Data.name) item.nameTag = Data.name;
+            if (Data.name) {
+                const dataLength = [...Data.name].filter(t => t === "{").length;
+                for (let i = 0; i < dataLength; i++) {
+                    Data.name = Data.name.replace("{name}", player.name);
+                    try {
+                        const score = Data.name.split("{score:")[1].split("}")[0];
+                        if (score) Data.name = Data.name.replace(`{score:${score}}`, getScore(player, score));
+                    } catch {}
+                    try {
+                        const tag = Data.name.split("{tag:")[1].split("}")[0];
+                        const hasTag = player.getTags().find(t => t.startsWith(tag));
+                        if (tag) Data.name = Data.name.replace(`{tag:${tag}}`, hasTag.split(":")[1]);
+                    } catch {}
+                }
+                item.nameTag = Data.name;
+            }
+            if (Data.lore) item.setLore(Data.lore);
             if (Data.enchants) {
                 player.tell("hi")
                 const enchantments = item.getComponent("enchantments").enchantments;
