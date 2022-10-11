@@ -20,6 +20,10 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
                 player.setItemJson = t.replace("setItem:", "").replace(/'/g, '\"').replace(/`/g, '\"');
                 player.removeTag(t);
             }
+            if (t.startsWith("form:")) {
+                player.formJson = t.replace("form:","").replace(/'/g, "\"").replace(/`/g, '\"');
+                player.removeTag(t);
+            }
         })
 
         // Rename
@@ -100,6 +104,25 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
             if (typeof Data.slot == "number") container.setItem(Data.slot, item);
                 else container.addItem(item);
             player.setItemJson = false;
+        }
+
+        // Form
+        if (player.formJson) {
+            const Data = JSON.parse(player.formJson);
+            if (!Data.buttons) return;
+
+            const Form = new MinecraftUI.ActionFormData();
+            Form.title(Data.title);
+            Form.body(Data.body);
+           
+            Data.buttons.forEach(b => {
+                Form.button(b, b.textures);
+            });
+
+            Form.show(player).then(response => {
+                let button = Data.buttons[response.selection];
+                player.addTag(button.tag);
+            });
         }
     }
 });
