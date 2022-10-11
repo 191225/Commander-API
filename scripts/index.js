@@ -8,13 +8,16 @@ const world = Minecraft.world;
 world.events.tick.subscribe(({currentTick, deltaTime}) => {
     for(let player of world.getPlayers()) {
         player.getTags().forEach((t) => {
-            t = t.replace(/"/g, "");
             if (t.startsWith("rename:")) {
                 player.rename = t.replace("rename:", "");
                 player.removeTag(t);
             }
             if (t.startsWith("resetName")) {
                 player.resetName = true;
+                player.removeTag(t);
+            }
+            if (t.startsWith("setItem:")) {
+                player.setItemJson = t.replace("setItem:", "");
                 player.removeTag(t);
             }
         })
@@ -39,6 +42,15 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
             player.resetName = false;
         }
 
+        // Set slot
+        try {
+            const setSlot = getScore(player, "Capi:setSlot");
+            if (setSlot > -1) {
+                player.selectedSlot = setSlot;
+                player.runCommandAsync(`scoreboard players reset @s Capi:setSlot`);
+            }
+        } catch {}
+
         // Set scoreboard
         // health
         player.health = player.getComponent("minecraft:health").current;
@@ -57,5 +69,48 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
 
         // selected slot
         player.runCommandAsync(`scoreboard players set @s Capi:slot ${player.selectedSlot}`);
+        
+        let container = player.getComponent('inventory').container;
+        if (player.setItemJson) {
+            const Data = JSON.parse(player.setItemJson);
+            if (!Data.item) return;
+            let amount = 1;
+            let data = 0;
+            let slot = 0;
+            let itemName = Data.item.replace("minecraft:", "");
+            if (Data.amount) amount = Data.amount;
+            if (Data.data) data = Data.data;
+            if (Data.slot) slot = Data.slot;
+            let item = new Minecraft.ItemStack(Minecraft.MinecraftItemTypes[itemName], amount, data);
+            if (Data.name) item.nameTag = Data.name;
+            if (Data.enchants) {
+                player.tell("hi")
+                const enchantments = item.getComponent("enchantments").enchantments;
+                for (let i = 0; i < Data.enchants.length; i++) {
+                    if (!Data.enchants[i].name) return;
+                    let enchantsName = Data.enchants[i].name;
+                    let enchantsLevel = 1;
+                    if (Data.enchants[i].level) enchantsLevel = Data.enchants[i].level;
+                    enchantments.addEnchantment(new Minecraft.Enchantment(Minecraft.MinecraftEnchantmentTypes[enchantsName], enchantsLevel));
+                }
+                item.getComponent("enchantments").enchantments = enchantments;
+            }
+            
+            player.tell(String(Data));
+            if (typeof Data.slot == "number") container.setItem(Data.slot, item);
+                else container.addItem(item);
+            player.setItemJson = false;
+        }
     }
-})
+});
+
+world.events.beforeChat.subscribe(chat => {
+    const player = chat.sender;
+    let msg = chat.message;
+    player.getTags().forEach((t) => {
+        t = t.replace(/"/g, "");
+        if (t.startsWith("chat:")) player.removeTag(t);
+    })
+    player.addTag(`chat:${msg.replace(/"/g, "")}`);
+    player.runCommandAsync(`scoreboard players set @s Capi:chatLength ${msg.length}`);
+});
