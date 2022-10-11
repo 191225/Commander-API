@@ -44,21 +44,7 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
 
         // Rename
         if (player.rename) {
-            const dataLength = [...player.rename].filter(t => t === "{").length;
-            for (let i = 0; i < dataLength; i++) {
-                player.rename = player.rename.replace("{name}", player.name);
-                try {
-                    const score = player.rename.split("{score:")[1].split("}")[0];
-                    if (score) player.rename = player.rename.replace(`{score:${score}}`, getScore(player, score));
-                } catch {}
-                try {
-                    const tag = player.rename.split("{tag:")[1].split("}")[0];
-                    const hasTag = player.getTags().find(t => t.startsWith(tag));
-                    if (tag) player.rename = player.rename.replace(`{tag:${tag}}`, hasTag.split(":")[1]);
-                } catch {}
-            }
-            
-            player.nameTag = player.rename;
+            player.nameTag = setVariable(player, player.rename);
             player.rename = false;
         }
 
@@ -108,23 +94,11 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
             if (Data.data) data = Data.data;
             if (Data.slot) slot = Data.slot;
             let item = new Minecraft.ItemStack(Minecraft.MinecraftItemTypes[itemName], amount, data);
-            if (Data.name) {
-                const dataLength = [...Data.name].filter(t => t === "{").length;
-                for (let i = 0; i < dataLength; i++) {
-                    Data.name = Data.name.replace("{name}", player.name);
-                    try {
-                        const score = Data.name.split("{score:")[1].split("}")[0];
-                        if (score) Data.name = Data.name.replace(`{score:${score}}`, getScore(player, score));
-                    } catch {}
-                    try {
-                        const tag = Data.name.split("{tag:")[1].split("}")[0];
-                        const hasTag = player.getTags().find(t => t.startsWith(tag));
-                        if (tag) Data.name = Data.name.replace(`{tag:${tag}}`, hasTag.split(":")[1]);
-                    } catch {}
-                }
-                item.nameTag = Data.name;
+            if (Data.name) item.nameTag = setVariable(player, Data.name);
+            if (Data.lore) {
+                for (let v in Data.lore) Data.lore[v] = setVariable(player, Data.lore[v]);
+                item.setLore(setVariable(player, Data.lore));
             }
-            if (Data.lore) item.setLore(Data.lore);
             if (Data.enchants) {
                 player.tell("hi")
                 const enchantments = item.getComponent("enchantments").enchantments;
@@ -150,14 +124,14 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
             if (!Data.buttons) throw TypeError(`The button has not been passed. A button must be passed to display the form.`);
             
             const Form = new MinecraftUI.ActionFormData();
-            if (Data.title) Form.title(String(Data.title));
-            if (Data.body) Form.body(String(Data.body));
+            if (Data.title) Form.title(String(setVariable(player, Data.title)));
+            if (Data.body) Form.body(String(setVariable(player, Data.body)));
            
             Data.buttons.forEach(b => {
                 player.tell(String(JSON.stringify(b)))
                 if (!b.text) throw TypeError(`The button text is not passed.`);
-                if (b.textures) Form.button(String(b.text), String(b.textures));
-                    else Form.button(String(b.text));
+                if (b.textures) Form.button(String(setVariable(player, b.text)), String(b.textures));
+                    else Form.button(String(setVariable(player, b.text)));
             });
 
             Form.show(player).then(response => player.addTag(Data.buttons[response.selection].tag ));
@@ -181,3 +155,20 @@ world.events.itemUse.subscribe(itemUse => {
     const player = itemUse.source;
     const item = itemUse.item;
 });
+
+function setVariable(player, source) {
+    const dataLength = [...source].filter(t => t === "{").length;
+    for (let i = 0; i < dataLength; i++) {
+        source = source.replace("{name}", player.name);
+        try {
+            const score = source.split("{score:")[1].split("}")[0];
+            if (score) source = source.replace(`{score:${score}}`, getScore(player, score));
+        } catch {}
+        try {
+            const tag = source.split("{tag:")[1].split("}")[0];
+            const hasTag = player.getTags().find(t => t.startsWith(tag));
+            if (tag) source = source.replace(`{tag:${tag}}`, hasTag.split(":")[1]);
+        } catch {}
+    }
+    return source;
+}
