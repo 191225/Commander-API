@@ -17,7 +17,7 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
                 player.removeTag(t);
             }
             if (t.startsWith("setItem:")) {
-                player.setItemJson = t.replace("setItem:", "");
+                player.setItemJson = t.replace("setItem:", "").replace(/'/g, '\"').replace(/`/g, '\"');
                 player.removeTag(t);
             }
         })
