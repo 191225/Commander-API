@@ -109,20 +109,20 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
         // Form
         if (player.formJson) {
             const Data = JSON.parse(player.formJson);
-            if (!Data.buttons) return;
-
+            if (!Data.buttons) throw TypeError(`The button has not been passed. A button must be passed to display the form.`);
+            
             const Form = new MinecraftUI.ActionFormData();
-            Form.title(Data.title);
-            Form.body(Data.body);
+            if (Data.title) Form.title(String(Data.title));
+            if (Data.body) Form.body(String(Data.body));
            
             Data.buttons.forEach(b => {
-                Form.button(b.text, b.texture);
+                player.tell(String(JSON.stringify(b)))
+                if (!b.text) throw TypeError(`The button text is not passed.`);
+                if (b.textures) Form.button(String(b.text), String(b.textures));
+                    else Form.button(String(b.text));
             });
 
-            Form.show(player).then(response => {
-                let button = Data.buttons[response.selection];
-                player.addTag(button.tag);
-            });
+            Form.show(player).then(response => player.addTag(Data.buttons[response.selection].tag ));
             player.formJson = false;
         }
     }
