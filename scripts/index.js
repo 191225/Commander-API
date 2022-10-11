@@ -114,3 +114,8 @@ world.events.beforeChat.subscribe(chat => {
     player.addTag(`chat:${msg.replace(/"/g, "")}`);
     player.runCommandAsync(`scoreboard players set @s Capi:chatLength ${msg.length}`);
 });
+
+world.events.itemUse.subscribe(itemUse => {
+    const player = itemUse.source;
+    const item = itemUse.item;
+});
