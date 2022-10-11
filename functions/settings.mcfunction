@@ -5,3 +5,5 @@ scoreboard objectives add Capi:z dummy
 scoreboard objectives add Capi:rx dummy
 scoreboard objectives add Capi:ry dummy
 scoreboard objectives add Capi:slot dummy
+scoreboard objectives add Capi:setSlot dummy
+scoreboard objectives add Capi:chatLength dummy
