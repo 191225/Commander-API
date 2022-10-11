@@ -12,8 +12,6 @@
  * @LINK https://github.com/191225/Commander-API
  */
 
-
-
 import * as Minecraft from "mojang-minecraft";
 import * as MinecraftUI from "mojang-minecraft-ui";
 import tickEvent from "./lib/TickEvent";
@@ -134,7 +132,7 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
                     else Form.button(String(setVariable(player, b.text)));
             });
 
-            Form.show(player).then(response => player.addTag(Data.buttons[response.selection].tag ));
+            Form.show(player).then(response => player.addTag(Data.buttons[response.selection].tag));
             player.formJson = false;
         }
     }
