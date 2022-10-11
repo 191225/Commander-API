@@ -116,13 +116,14 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
             Form.body(Data.body);
            
             Data.buttons.forEach(b => {
-                Form.button(b, b.textures);
+                Form.button(b.text, b.texture);
             });
 
             Form.show(player).then(response => {
                 let button = Data.buttons[response.selection];
                 player.addTag(button.tag);
             });
+            player.formJson = false;
         }
     }
 });
