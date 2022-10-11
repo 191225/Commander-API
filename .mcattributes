@@ -1,1 +1,2 @@
 diagnostic.disable.=true
+diagnostic.disable.minecraft.objective.invalid=true
