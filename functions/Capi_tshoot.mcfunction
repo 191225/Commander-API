@@ -1,0 +1,4 @@
+function Capi_tshoot/Capi_chat
+function Capi_tshoot/Capi_items
+function Capi_tshoot/Capi_scores
+function Capi_tshoot/Capi_tags
