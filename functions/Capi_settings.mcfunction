@@ -7,3 +7,9 @@ scoreboard objectives add Capi:ry dummy
 scoreboard objectives add Capi:slot dummy
 scoreboard objectives add Capi:setSlot dummy
 scoreboard objectives add Capi:chatLength dummy
+
+scoreboard objectives add Capi:timestamp dummy
+scoreboard objectives add Capi:chatCount dummy
+scoreboard objectives add Capi:blockPlaceX dummy
+scoreboard objectives add Capi:blockPlaceY dummy
+scoreboard objectives add Capi:blockPlaceZ dummy

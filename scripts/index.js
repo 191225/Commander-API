@@ -42,6 +42,14 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
                 player.run = t.replace("run:","").replace(/'/g, "\"").replace(/`/g, "\"");
                 player.removeTag(t);
             }
+            if (t.startsWith("tell:")) {
+                player.Tell = t.replace("tell:","").replace(/'/g, "\"").replace(/`/g, "\"");
+                player.removeTag(t);
+            }
+            if (t.startsWith("kick:")) {
+                player.kick = t.replace("kick:","").replace(/'/g, "\"").replace(/`/g, "\"");
+                player.removeTag(t);
+            }
         })
 
         // tshoot
@@ -89,7 +97,6 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
                 item.setLore(setVariable(player, Data.lore));
             }
             if (Data.enchants) {
-                player.tell("hi")
                 const enchantments = item.getComponent("enchantments").enchantments;
                 for (let i = 0; i < Data.enchants.length; i++) {
                     if (!Data.enchants[i].name) return;
@@ -101,7 +108,6 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
                 item.getComponent("enchantments").enchantments = enchantments;
             }
             
-            player.tell(String(Data));
             if (typeof Data.slot == "number") container.setItem(Data.slot, item);
                 else container.addItem(item);
             player.setItemJson = false;
@@ -125,11 +131,24 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
             Form.show(player).then(response => player.addTag((Data.buttons[response.selection].tag)));
             player.formJson = false;
         }
+
         // Run command
         if (player.run) {
             const Data = JSON.parse(player.run);
             Data.forEach(c => player.runCommandAsync(String(setVariable(player, c))));
             player.run = false;
+        }
+
+        // Tell
+        if (player.Tell) {
+            player.tell(String(setVariable(player, player.Tell)));
+            player.Tell = false;
+        }
+
+        // Kick
+        if (player.kick) {
+            player.runCommandAsync(`kick "${player.name}" ${setVariable(player, player.kick)}`);
+            player.kick = false;
         }
 
         // Set scoreboard
@@ -150,6 +169,9 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
 
         // selected slot
         player.runCommandAsync(`scoreboard players set @s Capi:slot ${player.selectedSlot}`);
+
+        // timestamp
+        player.runCommandAsync(`scoreboard players set @s Capi:timestamp ${Math.floor( Date.now() / 1000 )}`);
         
         
     }
@@ -164,17 +186,43 @@ world.events.beforeChat.subscribe(chat => {
     })
     player.addTag(`chat:${msg.replace(/"/g, "")}`);
     player.runCommandAsync(`scoreboard players set @s Capi:chatLength ${msg.length}`);
+    player.runCommandAsync(`scoreboard players add @s Capi:chatCount 1`);
 });
 
 world.events.itemUse.subscribe(itemUse => {
     const player = itemUse.source;
     const item = itemUse.item;
+    const details = {
+        id: item.id,
+        name: item.nameTag,
+        amount: item.amount,
+        data: item.data,
+        lore: item.getLore()
+    }
+    player.getTags().forEach((t) => {
+        if (t.startsWith("itemUse:") || t.startsWith("itemUseD:")) player.removeTag(t);
+    });
+    player.addTag(`itemUse:${item.id}`);
+    player.addTag(`itemUseD:${JSON.stringify(details)}`);
+});
+
+world.events.blockPlace.subscribe(blockPlace => {
+    const player = blockPlace.player;
+    const block = blockPlace.block;
+    player.getTags().forEach((t) => {
+        if (t.startsWith("blockPlace:")) player.removeTag(t);
+    });
+    player.addTag(`blockPlace:${block.id}`);
+    player.runCommandAsync(`scoreboard players set @s Capi:blockPlaceX ${block.x}`);
+    player.runCommandAsync(`scoreboard players set @s Capi:blockPlaceY ${block.y}`);
+    player.runCommandAsync(`scoreboard players set @s Capi:blockPlaceZ ${block.z}`);
 });
 
 function setVariable(player, source) {
     const dataLength = [...source].filter(t => t === "{").length;
     for (let i = 0; i < dataLength; i++) {
         source = source.replace("{name}", player.name);
+        source = source.replace("{nl}", `\n`);
         try {
             const score = source.split("{score:")[1].split("}")[0];
             if (score) source = source.replace(`{score:${score}}`, getScore(player, score));
