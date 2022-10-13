@@ -211,8 +211,7 @@ world.events.itemUse.subscribe(itemUse => {
 });
 
 world.events.blockPlace.subscribe(blockPlace => {
-    const player = blockPlace.player;
-    const block = blockPlace.block;
+    const { player, block } = blockPlace;
     player.getTags().forEach((t) => {
         if (t.startsWith("blockPlace:")) player.removeTag(t);
     });
@@ -222,3 +221,13 @@ world.events.blockPlace.subscribe(blockPlace => {
     player.runCommandAsync(`scoreboard players set @s Capi:blockPlaceZ ${block.z}`);
 });
 
+world.events.blockBreak.subscribe(blockBreak => {
+    const { player, block, brokenBlockPermutation } = blockBreak;
+    player.getTags().forEach((t) => {
+        if (t.startsWith("blockBreak:")) player.removeTag(t);
+    });
+    player.addTag(`blockBreak:${brokenBlockPermutation.type.id}`);
+    player.runCommandAsync(`scoreboard players set @s Capi:blockBreakX ${block.x}`);
+    player.runCommandAsync(`scoreboard players set @s Capi:blockBreakY ${block.y}`);
+    player.runCommandAsync(`scoreboard players set @s Capi:blockBreakZ ${block.z}`);
+});

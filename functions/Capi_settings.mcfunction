@@ -13,3 +13,6 @@ scoreboard objectives add Capi:chatCount dummy
 scoreboard objectives add Capi:blockPlaceX dummy
 scoreboard objectives add Capi:blockPlaceY dummy
 scoreboard objectives add Capi:blockPlaceZ dummy
+scoreboard objectives add Capi:blockBreakX dummy
+scoreboard objectives add Capi:blockBreakY dummy
+scoreboard objectives add Capi:blockBreakZ dummy
