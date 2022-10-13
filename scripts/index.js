@@ -155,6 +155,15 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
             player.kick = false;
         }
 
+        // Join
+        if (player.join) {
+            player.runCommandAsync(`scoreboard players set @s Capi:playerJoinX ${player.location.x}`);
+            player.runCommandAsync(`scoreboard players set @s Capi:playerJoinY ${player.location.y}`);
+            player.runCommandAsync(`scoreboard players set @s Capi:playerJoinZ ${player.location.z}`);
+            player.runCommandAsync(`scoreboard players add @s Capi:joinCount 1`);
+            player.join = false;
+        }
+
         // Set scoreboard
         // health
         player.health = player.getComponent("minecraft:health").current;
@@ -187,7 +196,7 @@ world.events.beforeChat.subscribe(chat => {
     player.getTags().forEach((t) => {
         t = t.replace(/"/g, "");
         if (t.startsWith("chat:")) player.removeTag(t);
-    })
+    });
     player.addTag(`chat:${msg.replace(/"/g, "")}`);
     player.runCommandAsync(`scoreboard players set @s Capi:chatLength ${msg.length}`);
     player.runCommandAsync(`scoreboard players add @s Capi:chatCount 1`);
@@ -219,6 +228,95 @@ world.events.blockPlace.subscribe(blockPlace => {
     player.runCommandAsync(`scoreboard players set @s Capi:blockPlaceX ${block.x}`);
     player.runCommandAsync(`scoreboard players set @s Capi:blockPlaceY ${block.y}`);
     player.runCommandAsync(`scoreboard players set @s Capi:blockPlaceZ ${block.z}`);
+});
+
+world.events.entityCreate.subscribe(entityCreate => {
+    const entity = entityCreate.entity;
+
+    const { x, y, z } = entity.location;
+
+    entity.runCommandAsync(`scoreboard players set @s Capi:EcreateX ${x.toFixed(0)}`);
+    entity.runCommandAsync(`scoreboard players set @s Capi:EcreateY ${y.toFixed(0)}`);
+    entity.runCommandAsync(`scoreboard players set @s Capi:EcreateZ ${z.toFixed(0)}`);
+
+    const details = {
+        id: entity.id,
+        dimension: entity.dimension.id
+    }
+
+    entity.addTag(`Ecreate:${entity.id}`);
+    entity.addTag(`EcreateD:${JSON.stringify(details)}`);
+});
+
+world.events.effectAdd.subscribe(effectAdd => {
+    const entity = effectAdd.entity;
+    const amplifier = effectAdd.effect.amplifier;
+    const duration = effectAdd.effect.duration;
+    const displayName = effectAdd.effect.displayName.split(" ")[0];
+
+    entity.runCommandAsync(`scoreboard players set @s Capi:effAddTick ${duration}`);
+    entity.runCommandAsync(`scoreboard players set @s Capi:effAddLevel ${amplifier}`);
+    entity.runCommandAsync(`scoreboard players set @s Capi:effAddState ${effectAdd.effectState}`);
+
+    const details = {
+        effect: displayName,
+        level: amplifier,
+        tick: duration,
+        state: effectAdd.effectState
+    }
+
+    entity.addTag(`effectAdd:${displayName}`);
+    entity.addTag(`effectAddD:${JSON.stringify(details)}`);
+});
+
+world.events.playerJoin.subscribe(playerJoin => {
+    const player = playerJoin.player;
+
+    const details = {
+        name: player.name,
+        dimension: player.dimension.id
+    }
+
+    player.addTag(`playerJoin:${JSON.stringify({name: player.name})}`);
+    player.addTag(`playerJoin:${JSON.stringify(details)}`);
+    player.join = true;
+});
+
+world.events.projectileHit.subscribe(projectileHit => {
+    const { blockHit, entityHit, projectile, source } = projectileHit;
+
+    if(blockHit) {
+        const hitBlock = blockHit.block;
+
+        source.runCommandAsync(`scoreboard players set @s Capi:PhitHbX ${hitBlock.location.x.toFixed(0)}`);
+        source.runCommandAsync(`scoreboard players set @s Capi:PhitHbY ${hitBlock.location.y.toFixed(0)}`);
+        source.runCommandAsync(`scoreboard players set @s Capi:PhitHbZ ${hitBlock.location.z.toFixed(0)}`);
+
+        source.runCommandAsync(`scoreboard players set @s Capi:PhitPX ${source.location.x.toFixed(0)}`);
+        source.runCommandAsync(`scoreboard players set @s Capi:PhitPY ${source.location.y.toFixed(0)}`);
+        source.runCommandAsync(`scoreboard players set @s Capi:PhitPZ ${source.location.z.toFixed(0)}`);
+    }
+
+    if(entityHit) {
+        source.runCommandAsync(`scoreboard players set @s Capi:PhitHeX ${entityHit.entity.location.x.toFixed(0)}`);
+        source.runCommandAsync(`scoreboard players set @s Capi:PhitHeY ${entityHit.entity.location.y.toFixed(0)}`);
+        source.runCommandAsync(`scoreboard players set @s Capi:PhitHeZ ${entityHit.entity.location.z.toFixed(0)}`);
+    }
+
+    if(projectile) {
+        source.runCommandAsync(`scoreboard players set @s Capi:PhitEX ${projectile.location.x.toFixed(0)}`);
+        source.runCommandAsync(`scoreboard players set @s Capi:PhitEY ${projectile.location.y.toFixed(0)}`);
+        source.runCommandAsync(`scoreboard players set @s Capi:PhitEZ ${projectile.location.z.toFixed(0)}`);
+    }
+    
+    let details = {}
+
+    if(blockHit) details["hitBlockId"] = blockHit.block.id;
+    if(entityHit) details["hitEntityId"] = entityHit.entity.id;
+    if(projectile) details["projectileId"] = projectile.id;
+
+    source.addTag(`Phit:${JSON.stringify({projectileId: projectile.id, sourceId: source.id})}`);
+    source.addTag(`PhitD:${JSON.stringify(details)}`);
 });
 
 world.events.blockBreak.subscribe(blockBreak => {
