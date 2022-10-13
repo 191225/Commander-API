@@ -12,7 +12,7 @@ export function setVariable(player, source) {
         try {
             const tag = source.split("{tag:")[1].split("}")[0];
             const hasTag = player.getTags().find(t => t.startsWith(tag));
-            if (tag) source = source.replace(`{tag:${tag}}`, hasTag.split(":")[1]);
+            if (tag) source = source.replace(`{tag:${tag}}`, hasTag.slice(tag.length + 1));
         } catch {}
     }
     return source;
