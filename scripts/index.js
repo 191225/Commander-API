@@ -18,10 +18,10 @@ import tickEvent from "./lib/TickEvent";
 import getScore from "./lib/getScore";
 import { Database, ExtendedDatabase } from "./lib/Database";
 import { setVariable } from "./util";
+import Config from "./config";
+import { Menu } from "./ui";
 
 const world = Minecraft.world;
-
-const Config = new Database("Capi:CONFIG");
 
 world.events.tick.subscribe(({currentTick, deltaTime}) => {
     for(let player of world.getPlayers()) {
@@ -177,7 +177,7 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
         // timestamp
         player.runCommandAsync(`scoreboard players set @s Capi:timestamp ${Math.floor( Date.now() / 1000 )}`);
         
-        
+        if (player.hasTag("Capi:open_config_gui")) Menu(player);
     }
 });
 
@@ -230,4 +230,9 @@ world.events.blockBreak.subscribe(blockBreak => {
     player.runCommandAsync(`scoreboard players set @s Capi:blockBreakX ${block.x}`);
     player.runCommandAsync(`scoreboard players set @s Capi:blockBreakY ${block.y}`);
     player.runCommandAsync(`scoreboard players set @s Capi:blockBreakZ ${block.z}`);
+});
+
+world.events.playerLeave.subscribe(playerLeave => {
+    const player = playerLeave.playerName;
+    if (Config.get("LeaveMsgEnabled")) world.say(String((Config.get("LeaveMsg")).replace("{name}", player)));
 });
