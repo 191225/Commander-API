@@ -25,7 +25,7 @@ scoreboard objectives add Capi:EcreateZ dummy
 scoreboard objectives add Capi:playerJoinX dummy
 scoreboard objectives add Capi:playerJoinY dummy
 scoreboard objectives add Capi:playerJoinZ dummy
-scoreboard objectives add Capi:playerJoinC dummy
+scoreboard objectives add Capi:joinCount dummy
 
 ### Projectile Hit - HitEntity
 scoreboard objectives add Capi:PhitHeX dummy

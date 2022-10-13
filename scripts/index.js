@@ -160,7 +160,7 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
             player.runCommandAsync(`scoreboard players set @s Capi:playerJoinX ${player.location.x}`);
             player.runCommandAsync(`scoreboard players set @s Capi:playerJoinY ${player.location.y}`);
             player.runCommandAsync(`scoreboard players set @s Capi:playerJoinZ ${player.location.z}`);
-            player.runCommandAsync(`scoreboard players add @s Capi:playerJoinC 1`);
+            player.runCommandAsync(`scoreboard players add @s Capi:joinCount 1`);
             player.join = false;
         }
 
