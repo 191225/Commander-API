@@ -17,7 +17,7 @@ import * as MinecraftUI from "mojang-minecraft-ui";
 import tickEvent from "./lib/TickEvent";
 import getScore from "./lib/getScore";
 import { Database, ExtendedDatabase } from "./lib/Database";
-import { setVariable } from "./util";
+import { setVariable, setScore } from "./util";
 import Config from "./config";
 import { Menu } from "./ui";
 
@@ -200,6 +200,14 @@ world.events.beforeChat.subscribe(chat => {
     player.addTag(`chat:${msg.replace(/"/g, "")}`);
     player.runCommandAsync(`scoreboard players set @s Capi:chatLength ${msg.length}`);
     player.runCommandAsync(`scoreboard players add @s Capi:chatCount 1`);
+    if (Config.get("ChatBlockTagEnabled") && player.hasTag(Config.get("ChatBlockTag").tag)) {
+        player.tell(String(Config.get("ChatBlockTag").msg));
+        return chat.cancel = true;
+    }
+    if (Config.get("ChatUIEnabled")) {
+        chat.cancel = true;
+        world.say(setVariable(player, String((Config.get("ChatUI")))).replace("{message}", msg));
+    }
 });
 
 world.events.itemUse.subscribe(itemUse => {

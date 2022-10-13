@@ -17,3 +17,5 @@ export function setVariable(player, source) {
     }
     return source;
 }
+
+export const setScore = (player, object, score) => player.runCommandAsync(`scoreboard players set @s Capi:${object} ${score}`);
