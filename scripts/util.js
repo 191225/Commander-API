@@ -1,3 +1,5 @@
+import getScore from "./lib/getScore";
+
 export function setVariable(player, source) {
     const dataLength = [...source].filter(t => t === "{").length;
     for (let i = 0; i < dataLength; i++) {
