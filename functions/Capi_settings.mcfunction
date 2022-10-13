@@ -41,3 +41,6 @@ scoreboard objectives add Capi:PhitPZ dummy
 scoreboard objectives add Capi:PhitEX dummy
 scoreboard objectives add Capi:PhitEY dummy
 scoreboard objectives add Capi:PhitEZ dummy
+scoreboard objectives add Capi:blockBreakX dummy
+scoreboard objectives add Capi:blockBreakY dummy
+scoreboard objectives add Capi:blockBreakZ dummy
