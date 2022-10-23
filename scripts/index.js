@@ -54,7 +54,15 @@ world.events.tick.subscribe(({currentTick, deltaTime}) => {
                 player.kick = t.replace("kick:","").replace(/'/g, "\"").replace(/`/g, "\"");
                 player.removeTag(t);
             }
+            if (t.startsWith("Capi:sneaking") && !player.isSneaking) {
+                player.removeTag(t);
+            }
         })
+
+        // sneaking
+        if (player.isSneaking) {
+            player.addTag("Capi:sneaking")
+        }
 
         // tshoot
         if (player.hasTag("Capi:system_tshoot")) {
@@ -208,6 +216,8 @@ world.events.beforeChat.subscribe(chat => {
         chat.cancel = true;
         world.say(setVariable(player, String((Config.get("ChatUI")))).replace("{message}", msg));
     }
+
+    player.getTags().forEach(t => player.removeTag(t));
 });
 
 world.events.itemUse.subscribe(itemUse => {
