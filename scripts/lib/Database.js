@@ -1,6 +1,6 @@
 // imported from https://github.com/Con-Bedrock-GameTest/Database_Event/blob/main/scripts/Database.js
 
-import { world, Scoreboard, ScoreboardObjective } from "mojang-minecraft"
+import { world, Scoreboard, ScoreboardObjective } from "@minecraft/server"
 
 const scoreSymbol = Symbol('scores'), nameSymbol = Symbol('name'), dbTypeSymbol = Symbol('dbType');
 const overworld = world.getDimension('overworld'), {scoreboard} = world, fakeMaxLength = 32000;

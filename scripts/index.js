@@ -12,8 +12,8 @@
  * @LINK https://github.com/191225/Commander-API
  */
 
-import * as Minecraft from "mojang-minecraft";
-import * as MinecraftUI from "mojang-minecraft-ui";
+import * as Minecraft from "@minecraft/server";
+import * as MinecraftUI from "@minecraft/server-ui";
 import tickEvent from "./lib/TickEvent";
 import getScore from "./lib/getScore";
 import { Database, ExtendedDatabase } from "./lib/Database";
@@ -23,7 +23,7 @@ import { Menu } from "./ui";
 
 const world = Minecraft.world;
 
-world.events.tick.subscribe(({currentTick, deltaTime}) => {
+tickEvent.subscribe("main", ({currentTick, deltaTime, tps}) => {
     for(let player of world.getPlayers()) {
         player.getTags().forEach((t) => {
             if (t.startsWith("rename:")) {

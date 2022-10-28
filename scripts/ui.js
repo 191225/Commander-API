@@ -12,8 +12,8 @@
  * @LINK https://github.com/191225/Commander-API
  */
 
-import * as Minecraft from "mojang-minecraft";
-import { ActionFormData, MessageFormData, ModalFormData } from "mojang-minecraft-ui";
+import * as Minecraft from "@minecraft/server";
+import { ActionFormData, MessageFormData, ModalFormData } from "@minecraft/server-ui";
 import tickEvent from "./lib/TickEvent";
 import getScore from "./lib/getScore";
 import { Database, ExtendedDatabase } from "./lib/Database";

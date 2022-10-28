@@ -1,4 +1,4 @@
-import { world } from "mojang-minecraft";
+import { world } from "@minecraft/server";
 
 function getScore(name, objectName){
     let scoreboard = world.scoreboard;
