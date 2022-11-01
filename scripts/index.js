@@ -17,7 +17,7 @@ import * as MinecraftUI from "@minecraft/server-ui";
 import tickEvent from "./lib/TickEvent";
 import getScore from "./lib/getScore";
 import { Database, ExtendedDatabase } from "./lib/Database";
-import { setVariable, setScore } from "./util";
+import { setVariable } from "./util";
 import Config from "./config";
 import { Menu } from "./ui";
 
@@ -249,23 +249,23 @@ world.events.blockPlace.subscribe(blockPlace => {
     player.setScore("set", "Capi:blockPlaceZ", block.location.z);
 });
 
-world.events.entityCreate.subscribe(entityCreate => {
-    const entity = entityCreate.entity;
+// world.events.entityCreate.subscribe(entityCreate => {
+//     const entity = entityCreate.entity;
 
-    const { x, y, z } = entity.location;
+//     const { x, y, z } = entity.location;
 
-    player.setScore("set", "Capi:EcreateX", Math.floor(x));
-    player.setScore("set", "Capi:EcreateY", Math.floor(y));
-    player.setScore("set", "Capi:EcreateZ", Math.floor(z));
+//     player.setScore("set", "Capi:EcreateX", Math.floor(x));
+//     player.setScore("set", "Capi:EcreateY", Math.floor(y));
+//     player.setScore("set", "Capi:EcreateZ", Math.floor(z));
 
-    const details = {
-        id: entity.id,
-        name: entity.nameTag || entity.id
-    }
+//     const details = {
+//         id: entity.id,
+//         name: entity.nameTag || entity.id
+//     }
 
-    entity.addTag(`Ecreate:${entity.id}`);
-    entity.addTag(`EcreateD:${JSON.stringify(details)}`);
-});
+//     entity.addTag(`Ecreate:${entity.id}`);
+//     entity.addTag(`EcreateD:${JSON.stringify(details)}`);
+// });
 
 world.events.effectAdd.subscribe(effectAdd => {
     const entity = effectAdd.entity;
