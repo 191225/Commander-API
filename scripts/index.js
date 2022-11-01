@@ -56,7 +56,7 @@ tickEvent.subscribe("main", ({currentTick, deltaTime, tps}) => {
             }
         });
 
-        player.setScore = (object, score) => player.runCommandAsync(`scoreboard players reset @s ${object} ${score ? score : ""}`);
+        player.setScore = (type, object, score) => player.runCommandAsync(`scoreboard players ${type} @s ${object} ${score ? score : ""}`);
 
         // sneaking
         if (player.isSneaking) player.addTag("Capi:sneaking");
@@ -84,7 +84,7 @@ tickEvent.subscribe("main", ({currentTick, deltaTime, tps}) => {
             const setSlot = getScore(player, "Capi:setSlot");
             if (setSlot > -1) {
                 player.selectedSlot = setSlot;
-                player.runCommandAsync(`scoreboard players reset @s Capi:setSlot`);
+                player.setScore("reset", "Capi:setSlot");
             }
         } catch {}
 
@@ -163,10 +163,10 @@ tickEvent.subscribe("main", ({currentTick, deltaTime, tps}) => {
 
         // Join
         if (player.join) {
-            player.runCommandAsync(`scoreboard players set @s Capi:playerJoinX ${player.location.x}`);
-            player.runCommandAsync(`scoreboard players set @s Capi:playerJoinY ${player.location.y}`);
-            player.runCommandAsync(`scoreboard players set @s Capi:playerJoinZ ${player.location.z}`);
-            player.runCommandAsync(`scoreboard players add @s Capi:joinCount 1`);
+            player.setScore("set", "Capi:playerJoinX", player.location.x.toFixed(0));
+            player.setScore("set", "Capi:playerJoinY", player.location.y.toFixed(0));
+            player.setScore("set", "Capi:playerJoinZ", player.location.z.toFixed(0));
+            player.setScore("add", "Capi:joinCount", 1);
             player.join = false;
         }
 
@@ -174,23 +174,26 @@ tickEvent.subscribe("main", ({currentTick, deltaTime, tps}) => {
         // health
         player.health = player.getComponent("minecraft:health").current;
         try {
-            player.runCommandAsync(`scoreboard players set @s Capi:health ${player.health}`);
+            player.setScore("set", "Capi:health", player.health);
         } catch {}
 
         // pos
+        player.setScore("set", "Capi:x", player.location.x.toFixed(0));
+        player.setScore("set", "Capi:y", player.location.y.toFixed(0));
+        player.setScore("set", "Capi:z", player.location.z.toFixed(0));
         player.runCommandAsync(`scoreboard players set @s Capi:x ${player.location.x.toFixed(0)}`);
         player.runCommandAsync(`scoreboard players set @s Capi:y ${player.location.y.toFixed(0)}`);
         player.runCommandAsync(`scoreboard players set @s Capi:z ${player.location.z.toFixed(0)}`);
 
         // rotation
-        player.runCommandAsync(`scoreboard players set @s Capi:rx ${player.rotation.x.toFixed(0)}`);
-        player.runCommandAsync(`scoreboard players set @s Capi:ry ${player.rotation.y.toFixed(0)}`);
+        player.setScore("set", "Capi:rx", player.rotation.x.toFixed(0));
+        player.setScore("set", "Capi:ry", player.rotation.y.toFixed(0));
 
         // selected slot
-        player.runCommandAsync(`scoreboard players set @s Capi:slot ${player.selectedSlot}`);
+        player.setScore("set", "Capi:slot", player.selectedSlot);
 
         // timestamp
-        player.runCommandAsync(`scoreboard players set @s Capi:timestamp ${Math.floor( Date.now() / 1000 )}`);
+        player.setScore("set", "Capi:timestamp", Math.floor( Date.now() / 1000 ));
         
         if (player.hasTag("Capi:open_config_gui")) Menu(player);
     }
@@ -199,15 +202,17 @@ tickEvent.subscribe("main", ({currentTick, deltaTime, tps}) => {
 world.events.beforeChat.subscribe(chat => {
     const player = chat.sender;
     let msg = chat.message;
+    let mute;
     player.getTags().forEach((t) => {
         t = t.replace(/"/g, "");
         if (t.startsWith("chat:")) player.removeTag(t);
+        if (t.startsWith("mute")) mute = t.slice(5);
     });
     player.addTag(`chat:${msg.replace(/"/g, "")}`);
-    player.runCommandAsync(`scoreboard players set @s Capi:chatLength ${msg.length}`);
-    player.runCommandAsync(`scoreboard players add @s Capi:chatCount 1`);
-    if (Config.get("ChatBlockTagEnabled") && player.hasTag(Config.get("ChatBlockTag").tag)) {
-        player.tell(String(Config.get("ChatBlockTag").msg));
+    player.setScore("set", "Capi:chatLength", msg.length);
+    player.setScore("add", "Capi:chatCount", 1);
+    if (mute || player.hasTag("mute")) {
+        player.tell(mute.length > 0 ? mute : "§cYou have been muted.");
         return chat.cancel = true;
     }
     if (Config.get("ChatUIEnabled")) {
@@ -239,9 +244,9 @@ world.events.blockPlace.subscribe(blockPlace => {
         if (t.startsWith("blockPlace:")) player.removeTag(t);
     });
     player.addTag(`blockPlace:${block.id}`);
-    player.runCommandAsync(`scoreboard players set @s Capi:blockPlaceX ${block.x}`);
-    player.runCommandAsync(`scoreboard players set @s Capi:blockPlaceY ${block.y}`);
-    player.runCommandAsync(`scoreboard players set @s Capi:blockPlaceZ ${block.z}`);
+    player.setScore("set", "Capi:blockPlaceX", block.location.x);
+    player.setScore("set", "Capi:blockPlaceY", block.location.y);
+    player.setScore("set", "Capi:blockPlaceZ", block.location.z);
 });
 
 world.events.entityCreate.subscribe(entityCreate => {
@@ -249,13 +254,13 @@ world.events.entityCreate.subscribe(entityCreate => {
 
     const { x, y, z } = entity.location;
 
-    entity.runCommandAsync(`scoreboard players set @s Capi:EcreateX ${x.toFixed(0)}`);
-    entity.runCommandAsync(`scoreboard players set @s Capi:EcreateY ${y.toFixed(0)}`);
-    entity.runCommandAsync(`scoreboard players set @s Capi:EcreateZ ${z.toFixed(0)}`);
+    player.setScore("set", "Capi:EcreateX", Math.floor(x));
+    player.setScore("set", "Capi:EcreateY", Math.floor(y));
+    player.setScore("set", "Capi:EcreateZ", Math.floor(z));
 
     const details = {
         id: entity.id,
-        dimension: entity.dimension.id
+        name: entity.nameTag || entity.id
     }
 
     entity.addTag(`Ecreate:${entity.id}`);
@@ -268,9 +273,9 @@ world.events.effectAdd.subscribe(effectAdd => {
     const duration = effectAdd.effect.duration;
     const displayName = effectAdd.effect.displayName.split(" ")[0];
 
-    entity.runCommandAsync(`scoreboard players set @s Capi:effAddTick ${duration}`);
-    entity.runCommandAsync(`scoreboard players set @s Capi:effAddLevel ${amplifier}`);
-    entity.runCommandAsync(`scoreboard players set @s Capi:effAddState ${effectAdd.effectState}`);
+    player.setScore("set", "Capi:effAddTick", duration);
+    player.setScore("set", "Capi:effAddLevel", amplifier);
+    player.setScore("set", "Capi:effAddState", effectAdd.effectState);
 
     const details = {
         effect: displayName,
@@ -285,42 +290,34 @@ world.events.effectAdd.subscribe(effectAdd => {
 
 world.events.playerJoin.subscribe(playerJoin => {
     const player = playerJoin.player;
-
-    const details = {
-        name: player.name,
-        dimension: player.dimension.id
-    }
-
-    player.addTag(`playerJoin:${JSON.stringify({name: player.name})}`);
-    player.addTag(`playerJoin:${JSON.stringify(details)}`);
     player.join = true;
 });
 
 world.events.projectileHit.subscribe(projectileHit => {
-    const { blockHit, entityHit, projectile, source } = projectileHit;
+    const { blockHit, entityHit, projectile, source: player } = projectileHit;
 
     if(blockHit) {
         const hitBlock = blockHit.block;
 
-        source.runCommandAsync(`scoreboard players set @s Capi:PhitHbX ${hitBlock.location.x.toFixed(0)}`);
-        source.runCommandAsync(`scoreboard players set @s Capi:PhitHbY ${hitBlock.location.y.toFixed(0)}`);
-        source.runCommandAsync(`scoreboard players set @s Capi:PhitHbZ ${hitBlock.location.z.toFixed(0)}`);
+        player.setScore("set", "Capi:PhitHbX", Math.floor(hitBlock.location.x));
+        player.setScore("set", "Capi:PhitHbY", Math.floor(hitBlock.location.y));
+        player.setScore("set", "Capi:PhitHbZ", Math.floor(hitBlock.location.z));
 
-        source.runCommandAsync(`scoreboard players set @s Capi:PhitPX ${source.location.x.toFixed(0)}`);
-        source.runCommandAsync(`scoreboard players set @s Capi:PhitPY ${source.location.y.toFixed(0)}`);
-        source.runCommandAsync(`scoreboard players set @s Capi:PhitPZ ${source.location.z.toFixed(0)}`);
+        player.setScore("set", "Capi:PhitPX", Math.floor(player.location.x));
+        player.setScore("set", "Capi:PhitPY", Math.floor(player.location.y));
+        player.setScore("set", "Capi:PhitPZ", Math.floor(player.location.z));
     }
 
     if(entityHit) {
-        source.runCommandAsync(`scoreboard players set @s Capi:PhitHeX ${entityHit.entity.location.x.toFixed(0)}`);
-        source.runCommandAsync(`scoreboard players set @s Capi:PhitHeY ${entityHit.entity.location.y.toFixed(0)}`);
-        source.runCommandAsync(`scoreboard players set @s Capi:PhitHeZ ${entityHit.entity.location.z.toFixed(0)}`);
+        player.setScore("set", "Capi:PhitHeX", Math.floor(entityHit.entity.location.x));
+        player.setScore("set", "Capi:PhitHeY", Math.floor(entityHit.entity.location.y));
+        player.setScore("set", "Capi:PhitHeZ", Math.floor(entityHit.entity.location.z));
     }
 
     if(projectile) {
-        source.runCommandAsync(`scoreboard players set @s Capi:PhitEX ${projectile.location.x.toFixed(0)}`);
-        source.runCommandAsync(`scoreboard players set @s Capi:PhitEY ${projectile.location.y.toFixed(0)}`);
-        source.runCommandAsync(`scoreboard players set @s Capi:PhitEZ ${projectile.location.z.toFixed(0)}`);
+        player.setScore("set", "Capi:PhitEX", Math.floor(projectile.location.x));
+        player.setScore("set", "Capi:PhitEY", Math.floor(projectile.location.y));
+        player.setScore("set", "Capi:PhitEZ", Math.floor(projectile.location.z));
     }
     
     let details = {}
@@ -329,8 +326,8 @@ world.events.projectileHit.subscribe(projectileHit => {
     if(entityHit) details["hitEntityId"] = entityHit.entity.id;
     if(projectile) details["projectileId"] = projectile.id;
 
-    source.addTag(`Phit:${JSON.stringify({projectileId: projectile.id, sourceId: source.id})}`);
-    source.addTag(`PhitD:${JSON.stringify(details)}`);
+    player.addTag(`Phit:${projectile.id}`);
+    player.addTag(`PhitD:${JSON.stringify(details)}`);
 });
 
 world.events.blockBreak.subscribe(blockBreak => {
@@ -339,9 +336,9 @@ world.events.blockBreak.subscribe(blockBreak => {
         if (t.startsWith("blockBreak:")) player.removeTag(t);
     });
     player.addTag(`blockBreak:${brokenBlockPermutation.type.id}`);
-    player.runCommandAsync(`scoreboard players set @s Capi:blockBreakX ${block.x}`);
-    player.runCommandAsync(`scoreboard players set @s Capi:blockBreakY ${block.y}`);
-    player.runCommandAsync(`scoreboard players set @s Capi:blockBreakZ ${block.z}`);
+    player.setScore("set", "Capi:blockBreakX", block.x);
+    player.setScore("set", "Capi:blockBreakY", block.y);
+    player.setScore("set", "Capi:blockBreakZ", block.z);
 });
 
 world.events.playerLeave.subscribe(playerLeave => {
