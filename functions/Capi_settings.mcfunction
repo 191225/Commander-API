@@ -44,3 +44,10 @@ scoreboard objectives add Capi:PhitEZ dummy
 scoreboard objectives add Capi:blockBreakX dummy
 scoreboard objectives add Capi:blockBreakY dummy
 scoreboard objectives add Capi:blockBreakZ dummy
+scoreboard objectives add Capi:buttonXPos dummy
+scoreboard objectives add Capi:buttonYPos dummy
+scoreboard objectives add Capi:buttonZPos dummy
+scoreboard objectives add Capi:dimension dummy
+scoreboard objectives add Capi:attack dummy
+scoreboard objectives add Capi:damage dummy
+scoreboard objectives add Capi:hurt dummy
