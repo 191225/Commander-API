@@ -54,16 +54,14 @@ tickEvent.subscribe("main", ({currentTick, deltaTime, tps}) => {
                 player.kick = t.replace("kick:","").replace(/'/g, "\"").replace(/`/g, "\"");
                 player.removeTag(t);
             }
-            if (t.startsWith("Capi:sneaking") && !player.isSneaking) {
-                player.removeTag(t);
-            }
-        })
+        });
+
+        player.setScore = (object, score) => player.runCommandAsync(`scoreboard players reset @s ${object} ${score ? score : ""}`);
 
         // sneaking
-        if (player.isSneaking) {
-            player.addTag("Capi:sneaking")
-        }
-
+        if (player.isSneaking) player.addTag("Capi:sneaking");
+            else player.removeTag("Capi:sneaking");
+        
         // tshoot
         if (player.hasTag("Capi:system_tshoot")) {
             player.getTags().forEach((t) => player.removeTag(t));
