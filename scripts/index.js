@@ -120,15 +120,15 @@ tickEvent.subscribe("main", ({currentTick, deltaTime, tps}) => {
         // Show form
         if (player.formJson) {
             const Data = JSON.parse(player.formJson);
-            if (!Data.buttons) throw TypeError(`The button has not been passed. A button must be passed to display the form.`);
+            if (typeof Data.buttons !== "object") throw TypeError(`The button has not been passed. A button must be passed to display the form.`);
             
             const Form = new MinecraftUI.ActionFormData();
-            if (Data.title) Form.title(String(setVariable(player, Data.title)));
-            if (Data.body) Form.body(String(setVariable(player, Data.body)));
+            if (typeof Data.title === "string") Form.title(String(setVariable(player, Data.title)));
+            if (typeof Data.body === "string") Form.body(String(setVariable(player, Data.body)));
            
             Data.buttons.forEach(b => {
-                if (!b.text) throw TypeError(`The button text is not passed.`);
-                if (b.textures) Form.button(String(setVariable(player, b.text)), String(b.textures));
+                if (typeof b.text !== "string") throw TypeError(`The button text is not passed.`);
+                if (typeof b.textures === "string") Form.button(String(setVariable(player, b.text)), String(b.textures));
                     else Form.button(String(setVariable(player, b.text)));
             });
 
