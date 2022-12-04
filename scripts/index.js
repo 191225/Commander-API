@@ -36,23 +36,23 @@ tickEvent.subscribe("main", ({currentTick, deltaTime, tps}) => {
                 player.resetName = true;
                 player.removeTag(t);
             }
-            if (t.startsWith("setItem:")) {
+            if (t.startsWith("setItem:") && !player.setItemJson) {
                 player.setItemJson = t.replace("setItem:", "").replace(/'/g, '\"').replace(/`/g, "\"");
                 player.removeTag(t);
             }
-            if (t.startsWith("form:")) {
+            if (t.startsWith("form:") && !player.formJson) {
                 player.formJson = t.replace("form:","").replace(/'/g, "\"").replace(/`/g, "\"");
                 player.removeTag(t);
             }
-            if (t.startsWith("run:")) {
+            if (t.startsWith("run:") && !player.run) {
                 player.run = t.replace("run:","").replace(/'/g, "\"").replace(/`/g, "\"");
                 player.removeTag(t);
             }
-            if (t.startsWith("tell:")) {
+            if (t.startsWith("tell:") && !player.Tell) {
                 player.Tell = t.replace("tell:","").replace(/'/g, "\"").replace(/`/g, "\"");
                 player.removeTag(t);
             }
-            if (t.startsWith("kick:")) {
+            if (t.startsWith("kick:") && !player.kick) {
                 player.kick = t.replace("kick:","").replace(/'/g, "\"").replace(/`/g, "\"");
                 player.removeTag(t);
             }
@@ -91,32 +91,24 @@ tickEvent.subscribe("main", ({currentTick, deltaTime, tps}) => {
         } catch {}
 
         // Set item
-        let container = player.getComponent('inventory').container;
+        const container = player.getComponent('inventory').container;
         if (player.setItemJson) {
             const Data = JSON.parse(player.setItemJson);
             if (!Data.item) return;
-            let amount = 1;
-            let data = 0;
-            let slot = 0;
-            let itemName = Data.item.replace("minecraft:", "");
-            if (Data.amount) amount = Data.amount;
-            if (Data.data) data = Data.data;
-            if (Data.slot) slot = Data.slot;
-            let item = new Minecraft.ItemStack(Minecraft.MinecraftItemTypes[itemName], amount, data);
-            if (Data.name) item.nameTag = setVariable(player, Data.name);
-            if (Data.lore) {
-                for (let v in Data.lore) Data.lore[v] = setVariable(player, Data.lore[v]);
+            let amount = 1, data = 0, slot = 0, itemName = Data.item.replace("minecraft:", "");
+            if (typeof Data.amount === "number") amount = Data.amount;
+            if (typeof Data.data === "number") data = Data.data;
+            if (typeof Data.slot === "number") slot = Data.slot;
+            const item = new Minecraft.ItemStack(Minecraft.MinecraftItemTypes[itemName], amount, data);
+            if (typeof Data.name === "string") item.nameTag = setVariable(player, Data.name);
+            if (typeof Data.lore === "object") {
+                for (let i in Data.lore) Data.lore[i] = setVariable(player, Data.lore[i]);
                 item.setLore(setVariable(player, Data.lore));
             }
-            if (Data.enchants) {
+            if (typeof Data.enchants === "object") {
                 const enchantments = item.getComponent("enchantments").enchantments;
-                for (let i = 0; i < Data.enchants.length; i++) {
-                    if (!Data.enchants[i].name) return;
-                    let enchantsName = Data.enchants[i].name;
-                    let enchantsLevel = 1;
-                    if (Data.enchants[i].level) enchantsLevel = Data.enchants[i].level;
-                    enchantments.addEnchantment(new Minecraft.Enchantment(Minecraft.MinecraftEnchantmentTypes[enchantsName], enchantsLevel));
-                }
+                for (const enchant of Data.enchant) if (typeof enchant.id === "string") 
+                    enchantments.addEnchantment(new Minecraft.Enchantment(Minecraft.MinecraftEnchantmentTypes[enchantName], typeof enchant.level === "number" ? enchant.level : 1));
                 item.getComponent("enchantments").enchantments = enchantments;
             }
             
