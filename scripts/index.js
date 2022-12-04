@@ -8,7 +8,8 @@
  * ░╚════╝░░╚════╝░╚═╝░░░░░╚═╝╚═╝░░░░░╚═╝╚═╝░░╚═╝╚═╝░░╚══╝╚═════╝░╚══════╝╚═╝░░╚═╝  ╚═╝░░╚═╝╚═╝░░░░░╚═╝
  * 
  * @LICENSE GNU General Public License v3.0
- * @AUTHORS Nano, arutaka
+ * @AUTHORS Nano
+ * @AUTHORS arutaka
  * @LINK https://github.com/191225/Commander-API
  */
 
@@ -22,6 +23,7 @@ import Config from "./config";
 import { Menu } from "./ui";
 
 const world = Minecraft.world;
+const system = MInecraft.system;
 
 tickEvent.subscribe("main", ({currentTick, deltaTime, tps}) => {
     for(let player of world.getPlayers()) {
