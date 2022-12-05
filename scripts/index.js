@@ -136,7 +136,7 @@ tickEvent.subscribe("main", ({currentTick, deltaTime, tps}) => {
             player.formJson = false;
         }
 
-        // Run command
+        // Run command 
         if (player.run) {
             const Data = JSON.parse(player.run);
             Data.forEach(c => player.runCommandAsync(String(setVariable(player, c))));
